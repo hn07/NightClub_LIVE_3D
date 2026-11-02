@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import * as THREE from 'three';
 import { Activity, AudioLines, Camera, Crown, Gift, MessageCircle, Music2, Settings2, Users, Zap } from 'lucide-react';
 
@@ -53,4 +53,4 @@ export default function App(){
  {tab==='settings'&&<div className="panel settings-panel"><span className="eyebrow">BROADCAST CONFIGURATION</span><h2>Thiết lập kênh</h2><label>Tên kênh hiển thị</label><input value={channel} onChange={e=>setChannel(e.target.value)}/><label>Giọng đọc cảm ơn quà</label><button className={'toggle '+(voice?'on':'')} onClick={()=>setVoice(v=>!v)}>{voice?'ĐANG BẬT':'ĐANG TẮT'}</button><p className="hint">Thiết lập hiện chỉ tồn tại trong phiên demo, lưu bền vững sẽ bổ sung sau.</p></div>}
  <footer>© 2026 NIGHT CLUB LIVE 3D <span>BUILT FOR LIVE ENTERTAINMENT</span></footer></section></main>;
 }
-function Metric({icon,label,value,note}:{icon:React.ReactNode;label:string;value:string;note:string}){return <div className="metric"><div className="metric-icon">{icon}</div><span>{label}</span><b>{value}</b><small>{note}</small></div>}
+function Metric({icon,label,value,note}:{icon:ReactNode;label:string;value:string;note:string}){return <div className="metric"><div className="metric-icon">{icon}</div><span>{label}</span><b>{value}</b><small>{note}</small></div>}
