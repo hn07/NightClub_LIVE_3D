@@ -70,7 +70,7 @@ export default function App(){
   });
   fetch('/api/history?limit=120').then(r=>r.json()).then(data=>{if(Array.isArray(data.events))setLiveEvents(data.events)}).catch(()=>{});
   fetch('/api/status').then(r=>r.json()).then(s=>{setConnected(s.status==='connected');if(s.username)setUsername(s.username)}).catch(()=>{});
-  return()=>socket.disconnect();
+  return()=>{socket.disconnect()};
  },[voice]);
  const connectLive=async()=>{setLiveError('');setConnecting(true);try{const r=await fetch('/api/connect',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username})});const d=await r.json();if(!r.ok)throw new Error(d.error||'Không thể kết nối');setConnected(true)}catch(e){setLiveError(e instanceof Error?e.message:'Lỗi kết nối');setConnected(false)}finally{setConnecting(false)}};
  const disconnectLive=async()=>{await fetch('/api/disconnect',{method:'POST'});setConnected(false)};
@@ -92,7 +92,7 @@ function BroadcastView(){
   fetch('/api/history?limit=8').then(r=>r.json()).then(data=>{if(Array.isArray(data.events))setEvents(data.events)}).catch(()=>{});
   socket.on('live:metrics',(m:{viewerCount?:number})=>{if(Number.isFinite(m.viewerCount))setPeople(Math.max(0,m.viewerCount||0))});
   socket.on('live:event',(e:{id:string;type:string;username:string;comment?:string;giftName?:string;coins?:number;count?:number;tier?:'common'|'rare'|'epic'|'legendary'})=>{setEvents(p=>[e,...p].slice(0,8));if(e.type==='gift'){setVip(e.username);setGiftFlash(true);window.setTimeout(()=>setGiftFlash(false),2600)}});
-  return()=>socket.disconnect();
+  return()=>{socket.disconnect()};
  },[]);
  const latest=events[0];
  return <main className={"broadcast-shell"+(giftFlash?" gift-flash":"")}><Stage people={people} spotlight={vip} pulse={events.length} portrait/>{giftFlash&&<div className={"gift-burst gift-"+(events[0]?.tier||"common")} key={events[0]?.id}><span>✦</span><b>GIFT DROP</b><strong>{vip}</strong><small>THANK YOU!</small></div>}<div className="broadcast-top"><div className="broadcast-logo">N<span>IGHT</span>CLUB<small>LIVE EXPERIENCE</small></div><div className="broadcast-live"><i/> LIVE · {people.toLocaleString('vi-VN')}</div></div><div className="broadcast-bottom">{latest&&<div className="broadcast-event"><b>{latest.type==='gift'?'🎁 '+(latest.tier==='legendary'?'QUÀ HUYỀN THOẠI':latest.tier==='epic'?'QUÀ VIP':latest.tier==='rare'?'QUÀ NỔI BẬT':'QUÀ TẶNG'):latest.type==='follow'?'✨ FOLLOW':latest.type==='chat'?'💬 BÌNH LUẬN':'⚡ LIVE EVENT'}</b><span>{latest.username} {latest.type==='gift'?'· '+latest.giftName+' ×'+latest.count+' · '+(latest.coins||0)+' xu':latest.type==='chat'?'· '+latest.comment:''}</span></div>}<div className="broadcast-title">TONIGHT'S PARTY<strong>LET THE MUSIC TAKE CONTROL</strong></div></div></main>;
