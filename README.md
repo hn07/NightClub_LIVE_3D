@@ -70,6 +70,11 @@ Lưu ý: giao diện quản trị hiện chưa tách thành một cửa sổ đi
 - API `GET /api/history?limit=100` trả về lịch sử gần đây; Broadcast và Dashboard nạp lại hoạt động gần nhất khi mở trang.
 - File lịch sử nằm trên máy chủ ứng dụng. Cần sao lưu thư mục `data/` nếu muốn giữ lịch sử khi chuyển máy.
 
+## V2.4 – Chào mừng thành viên mới vào LIVE
+- Khi có người mới tham gia phòng LIVE, backend gửi kèm nickname, username và URL ảnh đại diện (nếu TikTok cung cấp).
+- Broadcast 9:16 hiển thị thẻ chào mừng gồm avatar thật, tên người vừa vào và meme mặt hài nhảy disco.
+- Hiệu ứng tự động biến mất sau khoảng 5 giây; nếu không lấy được avatar thì dùng chữ cái đầu tên làm ảnh dự phòng.
+
 ## Lộ trình hoàn thiện tiếp theo
 - V2.0.x: kiểm thử kết nối LIVE thực tế, độ ổn định reconnect, xử lý lỗi API và tối ưu hiệu năng 3D.
 - V2.1: tách Broadcast Overlay 1080×1920 khỏi Dashboard, URL overlay riêng cho LIVE Studio.
