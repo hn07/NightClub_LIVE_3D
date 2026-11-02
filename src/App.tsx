@@ -70,7 +70,7 @@ export default function App(){
   });
   fetch('/api/status').then(r=>r.json()).then(s=>{setConnected(s.status==='connected');if(s.username)setUsername(s.username)}).catch(()=>{});
   return()=>socket.disconnect();
- },[]);
+ },[voice]);
  const connectLive=async()=>{setLiveError('');setConnecting(true);try{const r=await fetch('/api/connect',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username})});const d=await r.json();if(!r.ok)throw new Error(d.error||'Không thể kết nối');setConnected(true)}catch(e){setLiveError(e instanceof Error?e.message:'Lỗi kết nối');setConnected(false)}finally{setConnecting(false)}};
  const disconnectLive=async()=>{await fetch('/api/disconnect',{method:'POST'});setConnected(false)};
  const rank=[...donors].sort((a,b)=>b.coins-a.coins||b.gifts-a.gifts);
