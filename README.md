@@ -63,6 +63,13 @@ Lưu ý: giao diện quản trị hiện chưa tách thành một cửa sổ đi
 - TTS trình duyệt tiếng Việt (`vi-VN`) đọc lời cảm ơn quà, chào người mới và cảm ơn người follow; bật/tắt trong Cài đặt. Giọng đọc phụ thuộc voice tiếng Việt có trên Windows/trình duyệt.
 - Bảng TOP, tên kênh và tùy chọn TTS được lưu trong localStorage trên máy chạy Dashboard. Đây là lưu cục bộ theo trình duyệt, chưa phải đồng bộ cloud.
 
+## V2.3 – Gift tiers, lịch sử sự kiện và phục hồi overlay
+- Backend phân loại quà theo tổng xu của một event: common dưới 100 xu, rare từ 100, epic từ 1.000, legendary từ 10.000 xu. Ngưỡng này có thể tinh chỉnh sau khi thử LIVE thật.
+- Hiệu ứng spotlight trên Broadcast thay đổi theo cấp quà; quà epic/legendary có hiệu ứng sáng mạnh hơn.
+- Backend lưu lịch sử sự kiện LIVE dạng JSON Lines trong thư mục `data/`, giới hạn lịch sử trong bộ nhớ/API ở 1.000 sự kiện gần nhất.
+- API `GET /api/history?limit=100` trả về lịch sử gần đây; Broadcast và Dashboard nạp lại hoạt động gần nhất khi mở trang.
+- File lịch sử nằm trên máy chủ ứng dụng. Cần sao lưu thư mục `data/` nếu muốn giữ lịch sử khi chuyển máy.
+
 ## Lộ trình hoàn thiện tiếp theo
 - V2.0.x: kiểm thử kết nối LIVE thực tế, độ ổn định reconnect, xử lý lỗi API và tối ưu hiệu năng 3D.
 - V2.1: tách Broadcast Overlay 1080×1920 khỏi Dashboard, URL overlay riêng cho LIVE Studio.
