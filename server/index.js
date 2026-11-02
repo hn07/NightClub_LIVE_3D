@@ -25,10 +25,10 @@ const publishEvent = event => {
   if (event.type === 'gift') event.tier = giftTier(Number(event.coins) || 0);
   eventHistory.push(event);
   if (eventHistory.length > 1000) eventHistory = eventHistory.slice(-1000);
-  persistQueue = persistQueue.then(async () => { await mkdir(dataDir, { recursive: true }); await appendFile(historyFile, JSON.stringify(event) + '\\n', 'utf8'); }).catch(err => console.error('Cannot persist LIVE event:', err.message));
+  persistQueue = persistQueue.then(async () => { await mkdir(dataDir, { recursive: true }); await appendFile(historyFile, JSON.stringify(event) + '\n', 'utf8'); }).catch(err => console.error('Cannot persist LIVE event:', err.message));
   io.emit('live:event', event);
 };
-try { const raw = await readFile(historyFile, 'utf8'); eventHistory = raw.split('\\n').filter(Boolean).slice(-1000).map(line => JSON.parse(line)); } catch {}
+try { const raw = await readFile(historyFile, 'utf8'); eventHistory = raw.split('\n').filter(Boolean).slice(-1000).map(line => JSON.parse(line)); } catch {}
 
 const clean = (value, max = 80) => String(value ?? '').replace(/[<>]/g, '').trim().slice(0, max);
 const emitStatus = (status, extra = {}) => io.emit('live:status', { status, username: currentUsername, connectedAt, ...extra });
@@ -67,19 +67,19 @@ app.post('/api/connect', async (req, res) => {
     });
     connection.on(WebcastEvent.CHAT, data => publishEvent({ type: 'chat', id: crypto.randomUUID(), username: clean(data.user?.uniqueId || data.user?.nickname, 40), nickname: clean(data.user?.nickname, 60), comment: clean(data.comment, 300), at: Date.now() }));
     connection.on(WebcastEvent.MEMBER, data => {
-      io.emit('live:event', { type: 'member', id: crypto.randomUUID(), username: clean(data.user?.uniqueId || data.user?.nickname, 40), nickname: clean(data.user?.nickname, 60), viewerCount: Number(data.memberCount) || 0, at: Date.now() });
+      publishEvent({ type: 'member', id: crypto.randomUUID(), username: clean(data.user?.uniqueId || data.user?.nickname, 40), nickname: clean(data.user?.nickname, 60), viewerCount: Number(data.memberCount) || 0, at: Date.now() });
       if (Number(data.memberCount) > 0) io.emit('live:metrics', { viewerCount: Number(data.memberCount) });
     });
     connection.on(WebcastEvent.ROOM_USER, data => io.emit('live:metrics', { viewerCount: Number(data.viewerCount || data.total) || 0 }));
-    connection.on(WebcastEvent.LIKE, data => io.emit('live:event', { type: 'like', id: crypto.randomUUID(), username: clean(data.user?.uniqueId || data.user?.nickname, 40), count: Number(data.likeCount || data.total) || 1, at: Date.now() }));
-    connection.on(WebcastEvent.FOLLOW, data => io.emit('live:event', { type: 'follow', id: crypto.randomUUID(), username: clean(data.user?.uniqueId || data.user?.nickname, 40), nickname: clean(data.user?.nickname, 60), at: Date.now() }));
-    connection.on(WebcastEvent.SHARE, data => io.emit('live:event', { type: 'share', id: crypto.randomUUID(), username: clean(data.user?.uniqueId || data.user?.nickname, 40), at: Date.now() }));
+    connection.on(WebcastEvent.LIKE, data => publishEvent({ type: 'like', id: crypto.randomUUID(), username: clean(data.user?.uniqueId || data.user?.nickname, 40), count: Number(data.likeCount || data.total) || 1, at: Date.now() }));
+    connection.on(WebcastEvent.FOLLOW, data => publishEvent({ type: 'follow', id: crypto.randomUUID(), username: clean(data.user?.uniqueId || data.user?.nickname, 40), nickname: clean(data.user?.nickname, 60), at: Date.now() }));
+    connection.on(WebcastEvent.SHARE, data => publishEvent({ type: 'share', id: crypto.randomUUID(), username: clean(data.user?.uniqueId || data.user?.nickname, 40), at: Date.now() }));
     connection.on(WebcastEvent.GIFT, data => {
       if (data.giftDetails?.giftType === 1 && !data.repeatEnd) return;
       const count = Math.max(1, Number(data.repeatCount) || 1);
       const giftName = clean(data.extendedGiftInfo?.name || data.giftDetails?.giftName || 'Quà TikTok', 80);
       const unitCoins = Number(data.extendedGiftInfo?.diamondCount || data.giftDetails?.diamondCount || data.giftDetails?.diamond_count) || 0;
-      io.emit('live:event', { type: 'gift', id: crypto.randomUUID(), username: clean(data.user?.uniqueId || data.user?.nickname, 40), nickname: clean(data.user?.nickname, 60), giftName, count, coins: unitCoins * count, unitCoins, at: Date.now() });
+      publishEvent({ type: 'gift', id: crypto.randomUUID(), username: clean(data.user?.uniqueId || data.user?.nickname, 40), nickname: clean(data.user?.nickname, 60), giftName, count, coins: unitCoins * count, unitCoins, at: Date.now() });
     });
     await connection.connect();
     res.json({ ok: true, username });
