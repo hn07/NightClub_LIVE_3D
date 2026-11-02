@@ -41,7 +41,7 @@ const disconnectLive = async () => {
   connectedAt = null;
 };
 
-app.get('/api/health', (_req, res) => res.json({ ok: true, app: 'NightClub LIVE 3D', version: '2.0.0' }));
+app.get('/api/health', (_req, res) => res.json({ ok: true, app: 'NightClub LIVE 3D', version: '2.4.0' }));
 app.get('/api/status', (_req, res) => res.json({ status: liveConnection?.isConnected ? 'connected' : 'offline', username: currentUsername, connectedAt }));
 app.get('/api/history', (req, res) => { const limit = Math.min(500, Math.max(1, Number(req.query.limit) || 100)); res.json({ events: eventHistory.slice(-limit).reverse() }); });
 
