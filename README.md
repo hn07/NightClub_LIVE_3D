@@ -57,6 +57,12 @@ Lưu ý: giao diện quản trị hiện chưa tách thành một cửa sổ đi
 - Trong LIVE Studio, thêm Browser Source hoặc Window Capture trỏ tới URL overlay. Chọn canvas dọc 1080×1920 và kiểm tra crop/scale trong LIVE Studio.
 - Overlay nhận sự kiện realtime qua Socket.IO; cần backend `npm run dev` đang chạy và phòng LIVE đã kết nối để có dữ liệu thật.
 
+## V2.2 – Avatar, spotlight quà và cấu hình lưu trên máy
+- Nhân vật sân khấu có tay/chân riêng và chuyển động nhảy theo nhịp, không chỉ nhún cả khối.
+- Khi có quà tặng LIVE: hiển thị gift spotlight trên Broadcast, nhấn sáng sân khấu và nêu tên người tặng.
+- TTS trình duyệt tiếng Việt (`vi-VN`) đọc lời cảm ơn quà, chào người mới và cảm ơn người follow; bật/tắt trong Cài đặt. Giọng đọc phụ thuộc voice tiếng Việt có trên Windows/trình duyệt.
+- Bảng TOP, tên kênh và tùy chọn TTS được lưu trong localStorage trên máy chạy Dashboard. Đây là lưu cục bộ theo trình duyệt, chưa phải đồng bộ cloud.
+
 ## Lộ trình hoàn thiện tiếp theo
 - V2.0.x: kiểm thử kết nối LIVE thực tế, độ ổn định reconnect, xử lý lỗi API và tối ưu hiệu năng 3D.
 - V2.1: tách Broadcast Overlay 1080×1920 khỏi Dashboard, URL overlay riêng cho LIVE Studio.
