@@ -3,6 +3,7 @@ import { createServer } from 'node:http';
 import { Server } from 'socket.io';
 import { TikTokLiveConnection, WebcastEvent, ControlEvent } from 'tiktok-live-connector';
 import path from 'node:path';
+import { mkdir, readFile, appendFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -15,6 +16,19 @@ let liveConnection = null;
 let currentUsername = '';
 let connectedAt = null;
 let reconnectTimer = null;
+const dataDir = path.resolve(__dirname, '../data');
+const historyFile = path.join(dataDir, 'live-events.jsonl');
+let eventHistory = [];
+let persistQueue = Promise.resolve();
+const giftTier = coins => coins >= 10000 ? 'legendary' : coins >= 1000 ? 'epic' : coins >= 100 ? 'rare' : 'common';
+const publishEvent = event => {
+  if (event.type === 'gift') event.tier = giftTier(Number(event.coins) || 0);
+  eventHistory.push(event);
+  if (eventHistory.length > 1000) eventHistory = eventHistory.slice(-1000);
+  persistQueue = persistQueue.then(async () => { await mkdir(dataDir, { recursive: true }); await appendFile(historyFile, JSON.stringify(event) + '\\n', 'utf8'); }).catch(err => console.error('Cannot persist LIVE event:', err.message));
+  io.emit('live:event', event);
+};
+try { const raw = await readFile(historyFile, 'utf8'); eventHistory = raw.split('\\n').filter(Boolean).slice(-1000).map(line => JSON.parse(line)); } catch {}
 
 const clean = (value, max = 80) => String(value ?? '').replace(/[<>]/g, '').trim().slice(0, max);
 const emitStatus = (status, extra = {}) => io.emit('live:status', { status, username: currentUsername, connectedAt, ...extra });
@@ -29,6 +43,7 @@ const disconnectLive = async () => {
 
 app.get('/api/health', (_req, res) => res.json({ ok: true, app: 'NightClub LIVE 3D', version: '2.0.0' }));
 app.get('/api/status', (_req, res) => res.json({ status: liveConnection?.isConnected ? 'connected' : 'offline', username: currentUsername, connectedAt }));
+app.get('/api/history', (req, res) => { const limit = Math.min(500, Math.max(1, Number(req.query.limit) || 100)); res.json({ events: eventHistory.slice(-limit).reverse() }); });
 
 app.post('/api/connect', async (req, res) => {
   const username = clean(req.body?.username, 40).replace(/^@/, '');
@@ -50,7 +65,7 @@ app.post('/api/connect', async (req, res) => {
     connection.on(ControlEvent.ERROR, ({ info, exception }) => {
       io.emit('live:error', { message: clean(info || exception?.message || 'Lỗi kết nối TikTok LIVE.', 200) });
     });
-    connection.on(WebcastEvent.CHAT, data => io.emit('live:event', { type: 'chat', id: crypto.randomUUID(), username: clean(data.user?.uniqueId || data.user?.nickname, 40), nickname: clean(data.user?.nickname, 60), comment: clean(data.comment, 300), at: Date.now() }));
+    connection.on(WebcastEvent.CHAT, data => publishEvent({ type: 'chat', id: crypto.randomUUID(), username: clean(data.user?.uniqueId || data.user?.nickname, 40), nickname: clean(data.user?.nickname, 60), comment: clean(data.comment, 300), at: Date.now() }));
     connection.on(WebcastEvent.MEMBER, data => {
       io.emit('live:event', { type: 'member', id: crypto.randomUUID(), username: clean(data.user?.uniqueId || data.user?.nickname, 40), nickname: clean(data.user?.nickname, 60), viewerCount: Number(data.memberCount) || 0, at: Date.now() });
       if (Number(data.memberCount) > 0) io.emit('live:metrics', { viewerCount: Number(data.memberCount) });
