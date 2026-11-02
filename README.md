@@ -50,6 +50,13 @@ Bản V2 hiện là dashboard + sân khấu 3D trên trình duyệt. Để đưa
 
 Lưu ý: giao diện quản trị hiện chưa tách thành một cửa sổ điều khiển độc lập với sân khấu broadcast; đây là hạng mục tiếp theo để hoàn thiện trải nghiệm vận hành chuyên nghiệp.
 
+## Broadcast Overlay riêng cho TikTok LIVE Studio (V2.1)
+- Mở trực tiếp URL: `http://localhost:5173/?view=stage`.
+- Dashboard có liên kết **MỞ BROADCAST 9:16** để mở sân khấu ở cửa sổ/tab riêng.
+- Overlay chạy toàn màn hình, hiển thị số người xem và ticker sự kiện LIVE (quà tặng, bình luận, follow...).
+- Trong LIVE Studio, thêm Browser Source hoặc Window Capture trỏ tới URL overlay. Chọn canvas dọc 1080×1920 và kiểm tra crop/scale trong LIVE Studio.
+- Overlay nhận sự kiện realtime qua Socket.IO; cần backend `npm run dev` đang chạy và phòng LIVE đã kết nối để có dữ liệu thật.
+
 ## Lộ trình hoàn thiện tiếp theo
 - V2.0.x: kiểm thử kết nối LIVE thực tế, độ ổn định reconnect, xử lý lỗi API và tối ưu hiệu năng 3D.
 - V2.1: tách Broadcast Overlay 1080×1920 khỏi Dashboard, URL overlay riêng cho LIVE Studio.
