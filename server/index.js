@@ -67,7 +67,7 @@ app.post('/api/connect', async (req, res) => {
     });
     connection.on(WebcastEvent.CHAT, data => publishEvent({ type: 'chat', id: crypto.randomUUID(), username: clean(data.user?.uniqueId || data.user?.nickname, 40), nickname: clean(data.user?.nickname, 60), comment: clean(data.comment, 300), at: Date.now() }));
     connection.on(WebcastEvent.MEMBER, data => {
-      publishEvent({ type: 'member', id: crypto.randomUUID(), username: clean(data.user?.uniqueId || data.user?.nickname, 40), nickname: clean(data.user?.nickname, 60), viewerCount: Number(data.memberCount) || 0, at: Date.now() });
+      publishEvent({ type: 'member', id: crypto.randomUUID(), username: clean(data.user?.uniqueId || data.user?.nickname, 40), nickname: clean(data.user?.nickname || data.user?.uniqueId, 60), avatarUrl: clean(data.user?.profilePicture?.url?.[0] || data.user?.profilePicture?.url?.[1] || data.user?.avatarMedium || data.user?.avatarThumb || data.user?.avatarLarger || '', 500), viewerCount: Number(data.memberCount) || 0, at: Date.now() });
       if (Number(data.memberCount) > 0) io.emit('live:metrics', { viewerCount: Number(data.memberCount) });
     });
     connection.on(WebcastEvent.ROOM_USER, data => io.emit('live:metrics', { viewerCount: Number(data.viewerCount || data.total) || 0 }));
