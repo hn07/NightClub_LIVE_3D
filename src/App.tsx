@@ -13,6 +13,7 @@ const initial:Donor[]=[
 
 function Stage({people,spotlight,pulse,portrait=false}:{people:number;spotlight:string;pulse:number;portrait?:boolean}){
  const host=useRef<HTMLDivElement>(null);
+ const dancerNodes=useRef<THREE.Group[]>([]);
  useEffect(()=>{
   const el=host.current;if(!el)return;
   const scene=new THREE.Scene();scene.background=new THREE.Color('#080514');scene.fog=new THREE.Fog('#080514',18,48);
@@ -29,18 +30,20 @@ function Stage({people,spotlight,pulse,portrait=false}:{people:number;spotlight:
   const wall=new THREE.Mesh(new THREE.BoxGeometry(17,7,.6),new THREE.MeshStandardMaterial({color:0x140c28,emissive:0x4a087f,emissiveIntensity:1.2}));wall.position.set(0,6,-9);scene.add(wall);
   const booth=new THREE.Mesh(new THREE.BoxGeometry(5,1.6,1.5),new THREE.MeshStandardMaterial({color:0x171020,metalness:.8,roughness:.2,emissive:0x9b168d,emissiveIntensity:.5}));booth.position.set(0,2.2,-5);scene.add(booth);
   const colors=[0xff55c8,0x42dfff,0xffbd4a,0x9b72ff,0x55f0a7,0xff6680],dancers:THREE.Group[]=[];
-  for(let i=0;i<Math.max(8,Math.min(people,35));i++){
+  for(let i=0;i<35;i++){
    const g=new THREE.Group(),body=new THREE.Mesh(new THREE.CapsuleGeometry(.34,.72,4,8),new THREE.MeshStandardMaterial({color:colors[i%colors.length]}));body.position.y=1.1;g.add(body);
    const head=new THREE.Mesh(new THREE.SphereGeometry(.34,16,12),new THREE.MeshStandardMaterial({color:0xffd1bd}));head.position.y=1.85;g.add(head);
    const hair=new THREE.Mesh(new THREE.SphereGeometry(.35,16,10,0,Math.PI*2,0,Math.PI*.55),new THREE.MeshStandardMaterial({color:[0x201329,0x5b2941,0x172d46][i%3]}));hair.position.y=1.96;g.add(hair);
-   g.position.set(portrait?(((i%3)-1)*2.0):(((i%7)-3)*1.75),0,portrait?(-1+Math.floor(i/3)*2.0):(-1+Math.floor(i/7)*2.1));g.scale.setScalar(i<3?1.05:.82);scene.add(g);dancers.push(g);
+   g.position.set(portrait?(((i%3)-1)*2.0):(((i%7)-3)*1.75),0,portrait?(-1+Math.floor(i/3)*2.0):(-1+Math.floor(i/7)*2.1));g.scale.setScalar(i<3?1.05:.82);scene.add(g);dancers.push(g);g.visible=i<Math.max(8,Math.min(people,35));
   }
+  dancerNodes.current=dancers;
   const beams:THREE.Mesh[]=[];for(let i=0;i<6;i++){const b=new THREE.Mesh(new THREE.CylinderGeometry(.03,.55,18,12,1,true),new THREE.MeshBasicMaterial({color:colors[i],transparent:true,opacity:.12,side:THREE.DoubleSide,depthWrite:false}));b.position.set((i-2.5)*(portrait?1.7:2.5),8,-2);scene.add(b);beams.push(b);}
   const particles=new THREE.Group();for(let i=0;i<140;i++){const p=new THREE.Mesh(new THREE.SphereGeometry(.035,6,6),new THREE.MeshBasicMaterial({color:colors[i%colors.length]}));p.position.set((Math.random()-.5)*22,Math.random()*11-1,Math.random()*-16);particles.add(p);}scene.add(particles);
   let frame=0,raf=0;const resize=()=>{camera.aspect=el.clientWidth/el.clientHeight;camera.updateProjectionMatrix();renderer.setSize(el.clientWidth,el.clientHeight)};window.addEventListener('resize',resize);
   const animate=()=>{raf=requestAnimationFrame(animate);frame+=.018;dancers.forEach((d,i)=>{d.position.y=Math.abs(Math.sin(frame*2+i*.8))*.22;d.rotation.z=Math.sin(frame*2.5+i)*.12;d.rotation.y=Math.sin(frame+i)*.16});beams.forEach((b,i)=>{b.rotation.z=Math.sin(frame*.7+i)*.35;b.rotation.x=Math.cos(frame*.5+i)*.2});particles.rotation.y=frame*.025;ring.rotation.z=frame*.25;spot.position.x=Math.sin(frame*.8)*7;blue.intensity=70+Math.sin(frame*2)*35;pink.intensity=75+Math.cos(frame*1.7)*35;renderer.render(scene,camera)};animate();
-  return()=>{cancelAnimationFrame(raf);window.removeEventListener('resize',resize);renderer.dispose();if(el.contains(renderer.domElement))el.removeChild(renderer.domElement)};
- },[people,pulse]);
+  return()=>{cancelAnimationFrame(raf);window.removeEventListener('resize',resize);scene.traverse(o=>{const mesh=o as THREE.Mesh;if(mesh.geometry)mesh.geometry.dispose();if(mesh.material){const materials=Array.isArray(mesh.material)?mesh.material:[mesh.material];materials.forEach(m=>m.dispose())}});renderer.dispose();if(el.contains(renderer.domElement))el.removeChild(renderer.domElement);dancerNodes.current=[]};
+ },[]);
+ useEffect(()=>{dancerNodes.current.forEach((d,i)=>{d.visible=i<Math.max(8,Math.min(people,35))})},[people]);
  return <div className={portrait?'stage3d stage3d-portrait':'stage3d'} ref={host}><div className="stage-overlay"><div className="stage-brand">NIGHT<span>CLUB</span><small>LIVE EXPERIENCE</small></div><div className="live-pill"><i/> LIVE · {people} ĐANG QUẨY</div><div className="stage-caption"><span>TONIGHT'S PARTY</span><b>{spotlight?'VIP: '+spotlight:'LET THE MUSIC TAKE CONTROL'}</b></div></div></div>;
 }
 export default function App(){
