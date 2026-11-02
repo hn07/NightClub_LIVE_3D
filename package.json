@@ -1,24 +1,35 @@
 {
   "name": "night-club-live-3d",
   "private": true,
-  "version": "1.0.0",
+  "version": "2.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite --host 0.0.0.0",
+    "dev": "concurrently -k \"npm:server\" \"npm:vite\"",
+    "server": "node server/index.js",
+    "vite": "vite --host 0.0.0.0",
     "build": "tsc --noEmit && vite build",
+    "start": "cross-env NODE_ENV=production node server/index.js",
     "preview": "vite preview --host 0.0.0.0"
   },
   "dependencies": {
     "@vitejs/plugin-react": "latest",
     "@types/three": "latest",
+    "concurrently": "^9.1.2",
+    "cross-env": "^7.0.3",
+    "express": "^5.1.0",
+    "lucide-react": "latest",
     "react": "latest",
     "react-dom": "latest",
+    "socket.io": "^4.8.1",
+    "socket.io-client": "^4.8.1",
     "three": "latest",
+    "tiktok-live-connector": "^2.5.0",
     "typescript": "latest",
-    "vite": "latest",
-    "lucide-react": "latest"
+    "vite": "latest"
   },
   "devDependencies": {
+    "@types/express": "^5.0.1",
+    "@types/node": "^22.13.10",
     "@types/react": "latest",
     "@types/react-dom": "latest"
   }
