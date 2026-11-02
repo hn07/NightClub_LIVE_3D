@@ -16,3 +16,12 @@
 @keyframes gift-arrive{0%{opacity:0;scale:.55;filter:blur(8px)}70%{opacity:1;scale:1.06;filter:blur(0)}100%{scale:1}}
 @keyframes gift-spin{0%,100%{transform:rotate(-8deg) scale(.94)}50%{transform:rotate(8deg) scale(1.12)}}
 @keyframes stage-flash{0%,100%{filter:brightness(1)}45%{filter:brightness(1.42) saturate(1.5)}}
+
+/* V2.3 gift tiers */
+.gift-common{border-color:#d9b7ff77;box-shadow:0 0 22px #9e73ff55}
+.gift-rare{border-color:#5be9ffbb;box-shadow:0 0 30px #27dfff88,0 0 85px #248cff55}
+.gift-epic{border-color:#ff83d9;box-shadow:0 0 35px #ff36c9bb,0 0 110px #9e31ff88;animation:gift-arrive .55s cubic-bezier(.2,.8,.2,1) both,epic-pulse .9s ease-in-out 2}
+.gift-legendary{border-color:#ffe28a;box-shadow:0 0 42px #ffd35cdd,0 0 130px #ff7b29aa;background:radial-gradient(ellipse at center,#9b4d13f2,#2a0c27f5 72%);animation:gift-arrive .55s cubic-bezier(.2,.8,.2,1) both,legendary-pulse .7s ease-in-out 3}
+.gift-legendary span{color:#fff1ad;text-shadow:0 0 28px #ffad27}.gift-epic span{color:#ffc5f2}
+@keyframes epic-pulse{50%{filter:brightness(1.5);scale:1.035}}
+@keyframes legendary-pulse{50%{filter:brightness(1.8) saturate(1.7);scale:1.06}}
