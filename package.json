@@ -1,7 +1,7 @@
 {
   "name": "night-club-live-3d",
   "private": true,
-  "version": "2.0.0",
+  "version": "2.4.0",
   "type": "module",
   "scripts": {
     "dev": "concurrently -k \"npm:server\" \"npm:vite\"",
