@@ -66,6 +66,7 @@ export default function App(){
    if(e.type==='chat')setEvent('@'+e.username+': '+(e.comment||''));
    if(e.type==='follow')setEvent('@'+e.username+' vừa follow kênh');
    if(e.type==='member')setEvent('@'+e.username+' vừa tham gia LIVE');
+   if(voice&&(e.type==='gift'||e.type==='member'||e.type==='follow')){const line=e.type==='gift'?'Cảm ơn '+e.username+' đã tặng '+(e.giftName||'quà')+'.':e.type==='follow'?'Cảm ơn '+e.username+' đã theo dõi kênh.':'Chào mừng '+e.username+' đến với Night Club.';try{window.speechSynthesis.cancel();const utterance=new SpeechSynthesisUtterance(line);utterance.lang='vi-VN';utterance.rate=1.02;window.speechSynthesis.speak(utterance)}catch{}}
   });
   fetch('/api/status').then(r=>r.json()).then(s=>{setConnected(s.status==='connected');if(s.username)setUsername(s.username)}).catch(()=>{});
   return()=>socket.disconnect();
@@ -84,15 +85,15 @@ export default function App(){
 }
 
 function BroadcastView(){
- const [people,setPeople]=useState(0),[vip,setVip]=useState(''),[events,setEvents]=useState<{id:string;type:string;username:string;comment?:string;giftName?:string;coins?:number;count?:number}[]>([]);
+ const [people,setPeople]=useState(0),[vip,setVip]=useState(''),[giftFlash,setGiftFlash]=useState(false),[events,setEvents]=useState<{id:string;type:string;username:string;comment?:string;giftName?:string;coins?:number;count?:number}[]>([]);
  useEffect(()=>{
   const socket=io();
   socket.on('live:metrics',(m:{viewerCount?:number})=>{if(Number.isFinite(m.viewerCount))setPeople(Math.max(0,m.viewerCount||0))});
-  socket.on('live:event',(e:{id:string;type:string;username:string;comment?:string;giftName?:string;coins?:number;count?:number})=>{setEvents(p=>[e,...p].slice(0,8));if(e.type==='gift')setVip(e.username)});
+  socket.on('live:event',(e:{id:string;type:string;username:string;comment?:string;giftName?:string;coins?:number;count?:number})=>{setEvents(p=>[e,...p].slice(0,8));if(e.type==='gift'){setVip(e.username);setGiftFlash(true);window.setTimeout(()=>setGiftFlash(false),2600)}});
   return()=>socket.disconnect();
  },[]);
  const latest=events[0];
- return <main className="broadcast-shell"><Stage people={people} spotlight={vip} pulse={events.length} portrait/><div className="broadcast-top"><div className="broadcast-logo">N<span>IGHT</span>CLUB<small>LIVE EXPERIENCE</small></div><div className="broadcast-live"><i/> LIVE · {people.toLocaleString('vi-VN')}</div></div><div className="broadcast-bottom">{latest&&<div className="broadcast-event"><b>{latest.type==='gift'?'🎁 QUÀ TẶNG':latest.type==='follow'?'✨ FOLLOW':latest.type==='chat'?'💬 BÌNH LUẬN':'⚡ LIVE EVENT'}</b><span>{latest.username} {latest.type==='gift'?'· '+latest.giftName+' ×'+latest.count+' · '+(latest.coins||0)+' xu':latest.type==='chat'?'· '+latest.comment:''}</span></div>}<div className="broadcast-title">TONIGHT'S PARTY<strong>LET THE MUSIC TAKE CONTROL</strong></div></div></main>;
+ return <main className={"broadcast-shell"+(giftFlash?" gift-flash":"")}><Stage people={people} spotlight={vip} pulse={events.length} portrait/>{giftFlash&&<div className="gift-burst" key={events[0]?.id}><span>✦</span><b>GIFT DROP</b><strong>{vip}</strong><small>THANK YOU!</small></div>}<div className="broadcast-top"><div className="broadcast-logo">N<span>IGHT</span>CLUB<small>LIVE EXPERIENCE</small></div><div className="broadcast-live"><i/> LIVE · {people.toLocaleString('vi-VN')}</div></div><div className="broadcast-bottom">{latest&&<div className="broadcast-event"><b>{latest.type==='gift'?'🎁 QUÀ TẶNG':latest.type==='follow'?'✨ FOLLOW':latest.type==='chat'?'💬 BÌNH LUẬN':'⚡ LIVE EVENT'}</b><span>{latest.username} {latest.type==='gift'?'· '+latest.giftName+' ×'+latest.count+' · '+(latest.coins||0)+' xu':latest.type==='chat'?'· '+latest.comment:''}</span></div>}<div className="broadcast-title">TONIGHT'S PARTY<strong>LET THE MUSIC TAKE CONTROL</strong></div></div></main>;
 }
 
 function Metric({icon,label,value,note}:{icon:ReactNode;label:string;value:string;note:string}){return <div className="metric"><div className="metric-icon">{icon}</div><span>{label}</span><b>{value}</b><small>{note}</small></div>}
