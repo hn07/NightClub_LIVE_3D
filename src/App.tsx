@@ -91,7 +91,7 @@ function BroadcastView(){
   const socket=io();
   fetch('/api/history?limit=8').then(r=>r.json()).then(data=>{if(Array.isArray(data.events))setEvents(data.events)}).catch(()=>{});
   socket.on('live:metrics',(m:{viewerCount?:number})=>{if(Number.isFinite(m.viewerCount))setPeople(Math.max(0,m.viewerCount||0))});
-  socket.on('live:event',(e:{id:string;type:string;username:string;comment?:string;giftName?:string;coins?:number;count?:number;tier?:'common'|'rare'|'epic'|'legendary'})=>{setEvents(p=>[e,...p].slice(0,8));if(e.type==='gift'){setVip(e.username);setGiftFlash(true);window.setTimeout(()=>setGiftFlash(false),2600)}if(e.type==='member'){setWelcome({id:e.id,username:e.username,nickname:e.nickname,avatarUrl:e.avatarUrl});window.setTimeout(()=>setWelcome(current=>current?.id===e.id?null:current),5200)}});
+  socket.on('live:event',(e:{id:string;type:string;username:string;nickname?:string;avatarUrl?:string;comment?:string;giftName?:string;coins?:number;count?:number;tier?:'common'|'rare'|'epic'|'legendary'})=>{setEvents(p=>[e,...p].slice(0,8));if(e.type==='gift'){setVip(e.username);setGiftFlash(true);window.setTimeout(()=>setGiftFlash(false),2600)}if(e.type==='member'){setWelcome({id:e.id,username:e.username,nickname:e.nickname,avatarUrl:e.avatarUrl});window.setTimeout(()=>setWelcome(current=>current?.id===e.id?null:current),5200)}});
   return()=>{socket.disconnect()};
  },[]);
  const latest=events[0];
