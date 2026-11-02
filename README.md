@@ -1,25 +1,61 @@
 # NIGHT CLUB LIVE 3D
 
-Ứng dụng sân khấu vũ trường hoạt hình 3D dành cho TikTok LIVE Studio.
+Ứng dụng sân khấu nightclub hoạt hình 3D và bảng điều khiển sự kiện TikTok LIVE, tối ưu để vận hành trên Windows và đưa hình ảnh sân khấu vào TikTok LIVE Studio.
 
-## V1.0.0 Foundation
-- Sân khấu procedural 3D bằng Three.js: sàn nhảy, sân khấu VIP, LED, laser, nhân vật nhảy.
-- Giao diện quản trị responsive.
-- Mô phỏng quà tặng và spotlight.
-- TOP VIP: tổng xu giảm dần; nếu bằng xu, số lượng quà giảm dần.
+## V2.0.0 – LIVE ENGINE FOUNDATION
 
-## Chạy trên Windows
-1. Cài Node.js LTS (khuyến nghị Node 22).
-2. Tải ZIP hoặc clone repository.
-3. Chạy `INSTALL-AND-RUN.bat`.
+### Đã triển khai
+- Sân khấu 3D Three.js: sàn LED, bục DJ, vòng sân khấu, laser, đèn chuyển động, hạt sáng và nhân vật hoạt hình.
+- Dashboard responsive, bảng TOP VIP sắp xếp tổng xu giảm dần; nếu bằng xu thì số lượng quà giảm dần.
+- Backend Node.js riêng, Socket.IO chuyển sự kiện LIVE sang giao diện.
+- Kết nối phòng LIVE công khai bằng username, không yêu cầu nhập mật khẩu/cookie.
+- Nhận các sự kiện bình luận, người tham gia, lượt thích, follow, share, quà tặng và số người xem (tùy dữ liệu TikTok trả về).
+- Theo dõi chuỗi quà (gift streak), chỉ ghi nhận khi chuỗi kết thúc để tránh cộng xu trùng.
+- Endpoint kiểm tra tình trạng dịch vụ: `/api/health`, `/api/status`.
+
+### Chạy trên Windows
+1. Cài Node.js 22 LTS (hoặc Node.js 20.19+).
+2. Mở thư mục dự án.
+3. Chạy `INSTALL-AND-RUN.bat` hoặc chạy thủ công:
+   ```bash
+   npm install
+   npm run dev
+   ```
 4. Mở `http://localhost:5173`.
+5. Nhập username của tài khoản đang phát LIVE công khai rồi bấm **KẾT NỐI TIKTOK LIVE**.
 
-## Build
-`npm install` rồi `npm run build`.
+Lệnh `npm run dev` chạy đồng thời Vite (giao diện) và backend (cổng 4174). Không đóng cửa sổ terminal khi đang vận hành.
 
-## Trạng thái
-Đây là bản Foundation Demo. Nút nhập username hiện chỉ lưu trạng thái demo, KHÔNG kết nối TikTok. Tích hợp connector TikTok LIVE, avatar người xem thật, xác thực quà/coin, TTS và nhạc sẽ thực hiện ở giai đoạn tiếp theo.
+### Build và chạy production
+```bash
+npm install
+npm run build
+npm start
+```
+Production server phục vụ giao diện đã build và API tại cổng 4174. Có thể đặt biến môi trường `PORT` để đổi cổng.
 
-Không nhập mật khẩu TikTok hoặc cookie vào ứng dụng. Connector không chính thức có thể ngừng hoạt động khi TikTok thay đổi. Chỉ dùng nhạc, model và hình ảnh có quyền sử dụng phù hợp.
+## Kết nối TikTok – lưu ý quan trọng
+- `tiktok-live-connector` là thư viện reverse-engineering không chính thức, không thuộc ByteDance/TikTok. TikTok có thể thay đổi giao thức khiến kết nối tạm thời không hoạt động.
+- Chỉ kết nối LIVE công khai; không nhập mật khẩu, session cookie hoặc mã xác thực TikTok vào ứng dụng.
+- Không có cam kết uptime/SLA từ TikTok cho phương thức này. Cần thử nghiệm thực tế trên tài khoản và khu vực phát LIVE trước khi dùng chính thức.
+- Thư viện connector hiện phát hành theo giấy phép AGPL-3.0-only. Cần rà soát nghĩa vụ giấy phép trước khi phân phối thương mại hoặc cung cấp bản sửa đổi cho bên thứ ba.
+- Dữ liệu sự kiện hiện được xử lý trong bộ nhớ phiên chạy; chưa có database lưu lịch sử dài hạn.
 
-Repository Đi Chùa Online được giữ nguyên, chỉ dùng làm dự án tham khảo.
+## Tích hợp TikTok LIVE Studio
+Bản V2 hiện là dashboard + sân khấu 3D trên trình duyệt. Để đưa sân khấu vào LIVE Studio:
+1. Chạy ứng dụng trên máy phát LIVE.
+2. Mở giao diện sân khấu trên trình duyệt ở chế độ toàn màn hình.
+3. Trong TikTok LIVE Studio, thêm nguồn Browser/Window Capture trỏ tới cửa sổ sân khấu.
+4. Cấu hình canvas dọc 1080×1920 trong LIVE Studio và kiểm tra tỷ lệ/khung hình trước khi phát.
+
+Lưu ý: giao diện quản trị hiện chưa tách thành một cửa sổ điều khiển độc lập với sân khấu broadcast; đây là hạng mục tiếp theo để hoàn thiện trải nghiệm vận hành chuyên nghiệp.
+
+## Lộ trình hoàn thiện tiếp theo
+- V2.0.x: kiểm thử kết nối LIVE thực tế, độ ổn định reconnect, xử lý lỗi API và tối ưu hiệu năng 3D.
+- V2.1: tách Broadcast Overlay 1080×1920 khỏi Dashboard, URL overlay riêng cho LIVE Studio.
+- V2.2: nâng cấp avatar 3D, chuyển động đa dạng, hiệu ứng quà theo giá trị và spotlight VIP.
+- V2.3: TTS tiếng Việt, lời chào người mới, đọc bình luận theo bộ lọc và điều khiển âm thanh.
+- V2.4: lưu cấu hình, lịch sử phiên LIVE, xuất bảng xếp hạng và khôi phục dữ liệu.
+- V2.5: kiểm thử soak-test nhiều giờ và đóng gói Windows installer.
+
+Repository Đi Chùa Online được giữ nguyên, không chỉnh sửa.
