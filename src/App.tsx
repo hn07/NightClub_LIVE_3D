@@ -60,7 +60,7 @@ export default function App(){
   socket.on('live:status',(s:{status:string;username?:string})=>{setConnected(s.status==='connected');setConnecting(s.status==='connecting');if(s.status==='connected')setEvent('Đã kết nối TikTok LIVE · @'+(s.username||''));if(s.status==='offline')setEvent('Đã ngắt kết nối TikTok LIVE')});
   socket.on('live:error',(e:{message:string})=>setLiveError(e.message));
   socket.on('live:metrics',(m:{viewerCount?:number})=>{if(Number.isFinite(m.viewerCount)&&m.viewerCount!>=0)setPeople(m.viewerCount!)});
-  socket.on('live:event',(e:{id:string;type:string;username:string;comment?:string;giftName?:string;coins?:number;count?:number;tier?:'common'|'rare'|'epic'|'legendary'})=>{
+  socket.on('live:event',(e:{id:string;type:string;username:string;nickname?:string;avatarUrl?:string;comment?:string;giftName?:string;coins?:number;count?:number;tier?:'common'|'rare'|'epic'|'legendary'})=>{
    setLiveEvents(prev=>[e,...prev].slice(0,40));
    if(e.type==='gift'){setDonors(prev=>{const found=prev.some(d=>d.name===e.username);return found?prev.map(d=>d.name===e.username?{...d,coins:d.coins+(e.coins||0),gifts:d.gifts+(e.count||1)}:d):[...prev,{name:e.username||'TikTok user',coins:e.coins||0,gifts:e.count||1,avatar:'🎁'}]});setSpotlight(e.username);setPulse(p=>p+1);setEvent(e.username+' tặng '+(e.giftName||'quà')+' · '+(e.coins||0)+' xu')}
    if(e.type==='chat')setEvent('@'+e.username+': '+(e.comment||''));
@@ -86,7 +86,7 @@ export default function App(){
 }
 
 function BroadcastView(){
- const [people,setPeople]=useState(0),[vip,setVip]=useState(''),[giftFlash,setGiftFlash]=useState(false),[events,setEvents]=useState<{id:string;type:string;username:string;comment?:string;giftName?:string;coins?:number;count?:number;tier?:'common'|'rare'|'epic'|'legendary'}[]>([]);
+ const [people,setPeople]=useState(0),[vip,setVip]=useState(''),[giftFlash,setGiftFlash]=useState(false),[welcome,setWelcome]=useState<{id:string;username:string;nickname?:string;avatarUrl?:string}|null>(null),[events,setEvents]=useState<{id:string;type:string;username:string;nickname?:string;avatarUrl?:string;comment?:string;giftName?:string;coins?:number;count?:number;tier?:'common'|'rare'|'epic'|'legendary'}[]>([]);
  useEffect(()=>{
   const socket=io();
   fetch('/api/history?limit=8').then(r=>r.json()).then(data=>{if(Array.isArray(data.events))setEvents(data.events)}).catch(()=>{});
