@@ -3,7 +3,7 @@ import { createServer } from 'node:http';
 import { Server } from 'socket.io';
 import { TikTokLiveConnection, WebcastEvent, ControlEvent } from 'tiktok-live-connector';
 import path from 'node:path';
-import { mkdir, readFile, appendFile } from 'node:fs/promises';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -25,7 +25,7 @@ const publishEvent = event => {
   if (event.type === 'gift') event.tier = giftTier(Number(event.coins) || 0);
   eventHistory.push(event);
   if (eventHistory.length > 1000) eventHistory = eventHistory.slice(-1000);
-  persistQueue = persistQueue.then(async () => { await mkdir(dataDir, { recursive: true }); await appendFile(historyFile, JSON.stringify(event) + '\n', 'utf8'); }).catch(err => console.error('Cannot persist LIVE event:', err.message));
+  persistQueue = persistQueue.then(async () => { await mkdir(dataDir, { recursive: true }); await writeFile(historyFile, eventHistory.map(item => JSON.stringify(item)).join('\n') + '\n', 'utf8'); }).catch(err => console.error('Cannot persist LIVE event:', err.message));
   io.emit('live:event', event);
 };
 try { const raw = await readFile(historyFile, 'utf8'); eventHistory = raw.split('\n').filter(Boolean).slice(-1000).map(line => JSON.parse(line)); } catch {}
